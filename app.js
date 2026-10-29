@@ -853,7 +853,7 @@
       subtitle = `Available Stock: ${item.stock} units · SKU ${item.id.toUpperCase()}`;
       body = `
         <form id="record-sale-form">
-          <input type="hidden" name="id" value="${item.id}">
+          <input type="hidden" name="productId" value="${item.id}">
           <div class="signal-row" style="margin-bottom:14px">
             <span>Current Available Stock</span>
             <strong>${item.stock} units</strong>
@@ -878,7 +878,7 @@
       subtitle = `Current Stock: ${item.stock} units · SKU ${item.id.toUpperCase()}`;
       body = `
         <form id="add-stock-form">
-          <input type="hidden" name="id" value="${item.id}">
+          <input type="hidden" name="productId" value="${item.id}">
           <div class="signal-row" style="margin-bottom:14px">
             <span>Current Stock</span>
             <strong>${item.stock} units</strong>
@@ -904,7 +904,7 @@
       const categories = ['Household', 'Personal Care', 'Electronics', 'Stationery', 'Food & Beverages', 'Other'];
       body = `
         <form id="product-edit-full">
-          <input type="hidden" name="id" value="${item.id}">
+          <input type="hidden" name="productId" value="${item.id}">
           <div class="form-grid">
             <div class="field full">
               <label for="edit-name">Product Name</label>
@@ -1194,10 +1194,11 @@
   document.addEventListener('submit', event => {
     event.preventDefault();
     const form = event.target;
+    const formId = (typeof form.getAttribute === 'function' ? form.getAttribute('id') : form.id) || form.id;
     const data = new FormData(form);
 
-    if (form.id === 'record-sale-form') {
-      const id = data.get('id');
+    if (formId === 'record-sale-form') {
+      const id = data.get('productId') || data.get('id');
       const item = state.products.find(p => p.id === id);
       if (!item) { closeModal(); return; }
       const qty = Number(data.get('quantity'));
@@ -1239,8 +1240,8 @@
       return;
     }
 
-    if (form.id === 'add-stock-form') {
-      const id = data.get('id');
+    if (formId === 'add-stock-form') {
+      const id = data.get('productId') || data.get('id');
       const item = state.products.find(p => p.id === id);
       if (!item) { closeModal(); return; }
       const qty = Number(data.get('quantity'));
@@ -1270,8 +1271,8 @@
       return;
     }
 
-    if (form.id === 'product-edit-full') {
-      const id = data.get('id');
+    if (formId === 'product-edit-full') {
+      const id = data.get('productId') || data.get('id');
       const item = state.products.find(p => p.id === id);
       if (!item) { closeModal(); return; }
       const name = String(data.get('name') || '').trim();
@@ -1303,7 +1304,7 @@
       return;
     }
 
-    if (form.id === 'product-form') {
+    if (formId === 'product-form') {
       const name = String(data.get('name')).trim();
       const category = String(data.get('category'));
       const stock = Math.max(0, Number(data.get('stock')) || 0);
@@ -1339,7 +1340,7 @@
       return;
     }
 
-    if (form.id === 'listing-form') {
+    if (formId === 'listing-form') {
       const listing = {
         id: `l${Date.now()}`,
         name: String(data.get('name')).trim(),
@@ -1361,7 +1362,7 @@
       return;
     }
 
-    if (form.id === 'profile-form') {
+    if (formId === 'profile-form') {
       state.profile = {
         ...state.profile,
         name: String(data.get('name')).trim(),
@@ -1376,7 +1377,7 @@
       return;
     }
 
-    if (form.id === 'auth-form') {
+    if (formId === 'auth-form') {
       const email = String(data.get('email')).trim();
       if (data.get('name')) state.profile.name = String(data.get('name')).trim();
       if (data.get('store')) state.profile.store = String(data.get('store')).trim();
@@ -1388,7 +1389,7 @@
       return;
     }
 
-    if (form.id === 'date-form') {
+    if (formId === 'date-form') {
       state.dateRange = { from: String($('#date-from').value), to: String($('#date-to').value) };
       persist();
       closeModal();
